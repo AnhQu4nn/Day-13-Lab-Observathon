@@ -1,12 +1,36 @@
 {
-  "team": "TODO-team-name",
+  "team": "3",
   "schema_version": 1,
   "findings": [
     {
       "fault_class": "latency_spike",
-      "evidence": {"metric": "latency_p95_ms", "observed": "TODO from your telemetry", "trace_ids": []},
-      "root_cause": "TODO: what config knob or behavior causes it?",
-      "suggested_fix": "TODO: config change and/or wrapper mitigation"
+      "evidence": {"metric": "reported_latency_p95_ms", "observed": 21029, "trace_ids": ["pub-003", "pub-072", "pub-119"]},
+      "root_cause": "Long prompt/context and real local LLM calls create a high tail latency even when the tool count is small.",
+      "suggested_fix": "Shorten prompt/examples, disable verbose_system, use context_size=1, reset context every turn, cap max_completion_tokens, keep cache enabled."
+    },
+    {
+      "fault_class": "cost_blowup",
+      "evidence": {"metric": "avg_total_tokens", "observed": 14162.5, "trace_ids": ["pub-003", "pub-071", "pub-102"]},
+      "root_cause": "The previous prompt/examples and multi-turn context added unnecessary prompt tokens for mostly standalone order questions.",
+      "suggested_fix": "Use a compact system prompt and shorter few-shot examples; keep planner=false and self_consistency=1."
+    },
+    {
+      "fault_class": "pii_leak",
+      "evidence": {"metric": "answers_with_redacted_contact_placeholder", "observed": 17, "trace_ids": ["pub-010", "pub-014", "pub-102"]},
+      "root_cause": "The model sometimes echoed contact instructions; redaction hid the raw PII but left contact placeholders in final answers.",
+      "suggested_fix": "Prompt says never repeat contact data; wrapper strips redacted contact phrases after PII redaction and on cache hits."
+    },
+    {
+      "fault_class": "arithmetic_error",
+      "evidence": {"metric": "wrapper_calculator_guardrail", "observed": "totals recomputed from check_stock/get_discount/calc_shipping traces", "trace_ids": ["pub-003", "pub-006", "pub-069"]},
+      "root_cause": "The LLM can misapply integer discounts or shipping values at nonzero temperature.",
+      "suggested_fix": "Keep temperature low, require exact floor arithmetic in prompt, and recompute payable totals in wrapper when trace data is available."
+    },
+    {
+      "fault_class": "prompt_injection",
+      "evidence": {"metric": "sanitized_order_notes", "observed": "wrapper detects note/system/developer/ignore/price-is patterns", "trace_ids": []},
+      "root_cause": "Order notes can contain fake system instructions, fake prices, or fake discounts.",
+      "suggested_fix": "Treat all customer notes as data in the prompt and strip likely injected note suffixes before calling the agent."
     }
   ]
 }
