@@ -1,0 +1,21 @@
+{
+  "team": "3",
+  "phase": "public",
+  "headline": 97.78,
+  "sub": {
+    "correct": 0.9,
+    "quality": 0.9337,
+    "error": 1.0,
+    "latency": 0.0,
+    "cost": 1.0,
+    "drift": 0.9534,
+    "prompt": 0.9088
+  },
+  "diag_f1": 0.533,
+  "n": 120,
+  "n_correct": 99,
+  "judge_mode": "offline",
+  "weights_hash": "e81a8ed58d93",
+  "key_hash": "9a800fa6968d",
+  "sig": "74a39eaa85fa3315aca1abd1b52e92ae7e09dddc19889462bbf835ef73fd7158"
+}
